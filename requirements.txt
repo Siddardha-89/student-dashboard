@@ -4,3 +4,8 @@ sqlalchemy
 python-jose
 passlib[bcrypt]
 pydantic
+numpy
+pandas
+scikit-learn
+python-multipart
+jinja2
