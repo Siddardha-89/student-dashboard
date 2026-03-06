@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite AI | Managed Admin Console</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body onload="initializeDashboard()">
+    <!-- Premium Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="gold-gradient-text">ELITE</span> AI
+        </div>
+        <nav class="sidebar-nav">
+            <a href="admin.html" class="nav-item active">
+                <i class="fas fa-users"></i>
+                <span>All Students</span>
+            </a>
+            <button type="button" onclick="showAddModal()" class="nav-item btn-trigger">
+                <i class="fas fa-plus"></i>
+                <span>Add Student</span>
+            </button>
+        </nav>
+        <button type="button" onclick="logout()" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </button>
+    </div>
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <header class="dashboard-header">
+            <div>
+                <h1>Admin <span class="gold-gradient-text">Dashboard</span></h1>
+                <p class="subtitle">Manage student data and performance metrics.</p>
+            </div>
+            <div class="header-actions">
+                <div class="stats-mini">
+                    <span id="studentCount">0</span> Students Enrolled
+                </div>
+            </div>
+        </header>
+        <!-- Student Records Table -->
+        <section class="table-container glass-card">
+            <div class="table-wrapper">
+                <table id="mainTable">
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Student Name</th>
+                            <th>Department</th>
+                            <th>GPA</th>
+                            <th>Attendance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        <!-- Dynamic Rows Injected via script.js -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Empty State Message -->
+            <div id="noDataMessage" class="empty-state">
+                <i class="fas fa-folder-open fa-3x"></i>
+                <p>No student records found in the database.</p>
+            </div>
+        </section>
+    </main>
+    <!-- Add Student Modal (Glassmorphism Modal) -->
+    <div id="studentModal" class="modal-overlay">
+        <div class="modal-content glass-card animate-fade-in">
+            <div class="modal-header">
+                <h2>Enroll <span class="gold-gradient-text">New Student</span></h2>
+                <button type="button" class="close-btn" onclick="hideAddModal()" aria-label="Close modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="addStudentForm" onsubmit="handleAddStudent(event)" class="premium-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="sName">Full Name</label>
+                        <input type="text" id="sName" placeholder="e.g. John Doe" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="sRoll">Roll No</label>
+                        <input type="text" id="sRoll" placeholder="e.g. CS202601" required autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label for="sDept">Academic Department</label>
+                    <input type="text" id="sDept" placeholder="e.g. Computer Science" required autocomplete="off">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="sAttendance">Attendance (%)</label>
+                        <input type="number" step="0.01" min="0" max="100" id="sAttendance" placeholder="85.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sGPA">Overall GPA</label>
+                        <input type="number" step="0.01" min="0" max="10" id="sGPA" placeholder="8.5" required>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="sCoding">Coding (0-10)</label>
+                        <input type="number" min="0" max="10" id="sCoding" placeholder="9" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sComm">Comm. (0-10)</label>
+                        <input type="number" min="0" max="10" id="sComm" placeholder="8" required>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-premium">Commit Record</button>
+                    <button type="button" class="btn-outline-gold" onclick="hideAddModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Notification system container -->
+    <div id="notificationArea"></div>
+    <!-- Main JavaScript Logic -->
+    <script src="script.js"></script>
+</body>
+
+</html>

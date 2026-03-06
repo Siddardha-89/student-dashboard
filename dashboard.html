@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Performance AI | Student Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body onload="checkAuth(); loadStudentDashboard()">
+
+    <div class="sidebar flex-column">
+        <div class="logo m-b-3 text-center">
+            <span class="gold-gradient-text">ELITE</span> AI
+        </div>
+        <div class="flex-column gap-1">
+            <a href="#" class="btn-premium">
+                <i class="fas fa-home"></i>&nbsp;&nbsp;Overview
+            </a>
+            <a href="report.html" class="btn-outline-gold text-center">
+                <i class="fas fa-file-alt"></i>&nbsp;&nbsp;View Report
+            </a>
+            <button type="button" onclick="logout()" class="btn-outline-gold text-center">
+                <i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header class="flex-row justify-between align-center m-b-3">
+            <div>
+                <h1 id="welcomeText">Welcome, <span class="gold-gradient-text">Student</span></h1>
+                <p class="gray-text">Analyzing your academic path towards excellence.</p>
+            </div>
+            <div class="glass-card pill-badge">
+                <span id="roleBadge" class="gold-gradient-text font-bold small-text uppercase">Student Portal</span>
+            </div>
+        </header>
+
+        <div class="grid-3">
+            <!-- Performance Meter -->
+            <div class="glass-card text-center">
+                <h3 class="m-b-1">Performance Score</h3>
+                <div class="gold-gradient-text score-value">8.4</div>
+                <p class="gray-text">Current Semester GPA</p>
+                <div class="progress-bar-container">
+                    <div id="gpaProgressBar" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <!-- Risk Status -->
+            <div class="glass-card text-center">
+                <h3 class="m-b-1">Academic Risk</h3>
+                <div id="riskLevel" class="status-badge status-success">LOW RISK</div>
+                <p class="gray-text">Probability: <span id="riskProb" class="text-white">10%</span></p>
+            </div>
+
+            <!-- Placement Probability -->
+            <div class="glass-card text-center">
+                <h3 class="m-b-1">Placement Chance</h3>
+                <div id="placementChance" class="gold-gradient-text score-value">92%</div>
+                <p class="gray-text">Tier 1 Eligible</p>
+            </div>
+        </div>
+
+        <div class="grid-2-1 m-t-2">
+            <div class="glass-card">
+                <h3>Subject-wise Analysis</h3>
+                <div class="chart-container">
+                    <canvas id="marksChart"></canvas>
+                </div>
+            </div>
+            <div class="glass-card">
+                <h3>Smart Suggestions</h3>
+                <div id="suggestionsList" class="flex-column gap-1 m-t-1 small-text">
+                    <!-- JS populated -->
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-1-2 m-t-2">
+            <div class="glass-card">
+                <h3>Semester Progress</h3>
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+            <div class="glass-card">
+                <h3><i class="fas fa-microchip gold-gradient-text"></i> Skill Distribution</h3>
+                <div class="chart-container flex-row justify-center">
+                    <canvas id="distributionChart" class="max-h-350"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Performance AI | Analysis Report</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body onload="checkAuth(); loadReport()">
+
+    <div id="pdf-content" class="container animate-fade-in p-y-4">
+        <header class="flex-row justify-between align-center m-b-3 border-bottom-gold p-b-1-5">
+            <div>
+                <h1 class="font-large"><span class="gold-gradient-text">PERFORMANCE</span> REPORT</h1>
+                <p class="gray-text">Generated on: <span id="reportDate"></span></p>
+            </div>
+            <div class="text-right">
+                <h2 id="reportName" class="gold-gradient-text">Name</h2>
+                <p id="reportDeptRoll" class="gray-text">Dept | Roll</p>
+            </div>
+        </header>
+
+        <div class="grid-2">
+            <div class="glass-card">
+                <h3 class="m-b-1-5 border-bottom-glass p-b-0-5">Academic Profile</h3>
+                <div class="flex-column gap-1">
+                    <p class="flex-row justify-between">Attendance: <span id="repAtt"
+                            class="gold-gradient-text font-bold">85%</span></p>
+                    <p class="flex-row justify-between">GPA: <span id="repGPA"
+                            class="gold-gradient-text font-bold">8.4/10</span></p>
+                    <p class="flex-row justify-between">Internal Marks: <span id="repInt"
+                            class="gold-gradient-text font-bold">42/50</span></p>
+                    <p class="flex-row justify-between">Backlogs: <span id="repBack"
+                            class="gold-gradient-text font-bold">0</span></p>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3 class="m-b-1-5 border-bottom-glass p-b-0-5">AI Predictions</h3>
+                <div class="flex-column gap-1">
+                    <p class="flex-row justify-between">Risk Level: <span id="repRisk" class="font-bold">LOW</span></p>
+                    <p class="flex-row justify-between">Placement Probability: <span id="repPlace"
+                            class="gold-gradient-text font-bold">92%</span></p>
+                    <p class="flex-row justify-between">Eligible Tier: <span id="repTier"
+                            class="gold-gradient-text font-bold">Tier 1</span></p>
+                    <p class="flex-row justify-between">Est. Salary: <span id="repSalary"
+                            class="gold-gradient-text font-bold">12-25 LPA</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card m-t-3">
+            <h3 class="m-b-1-5">Subject Improvement Suggestions</h3>
+            <div id="repSuggestions" class="grid-3">
+                <!-- JS populated -->
+            </div>
+        </div>
+
+        <div id="action-buttons" class="m-t-4 text-center flex-row gap-2 justify-center">
+            <button type="button" class="btn-premium" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> Download
+                Premium PDF</button>
+            <a href="dashboard.html" class="btn-outline-gold">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
