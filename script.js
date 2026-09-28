@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8001";
+const API_BASE = "https://student-performance-tan.vercel.app";
 
 // Notification Helper
 function showNotification(msg) {
