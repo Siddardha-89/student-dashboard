@@ -161,7 +161,11 @@ def add_student(student: models.StudentCreate):
             detail=f"Student with Roll No {roll_no} already exists."
         )
 
+    new_id = len(students_store) + 1
+
     student_data = student.dict()
+
+    student_data["id"] = new_id
 
     students_store[roll_no] = student_data
 
