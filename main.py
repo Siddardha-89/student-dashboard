@@ -19,6 +19,7 @@ import models
 import database
 import ml_model
 
+
 app = FastAPI(title="Student Performance Analyzer API")
 
 
@@ -26,37 +27,51 @@ app = FastAPI(title="Student Performance Analyzer API")
 
 @app.get("/")
 def home():
-    return FileResponse(os.path.join(BASE_DIR, "index.html"))
+    return FileResponse(
+        os.path.join(BASE_DIR, "index.html")
+    )
 
 
 @app.get("/login.html")
 def login_page():
-    return FileResponse(os.path.join(BASE_DIR, "login.html"))
+    return FileResponse(
+        os.path.join(BASE_DIR, "login.html")
+    )
 
 
 @app.get("/dashboard.html")
 def dashboard_page():
-    return FileResponse(os.path.join(BASE_DIR, "dashboard.html"))
+    return FileResponse(
+        os.path.join(BASE_DIR, "dashboard.html")
+    )
 
 
 @app.get("/admin.html")
 def admin_page():
-    return FileResponse(os.path.join(BASE_DIR, "admin.html"))
+    return FileResponse(
+        os.path.join(BASE_DIR, "admin.html")
+    )
 
 
 @app.get("/report.html")
 def report_page():
-    return FileResponse(os.path.join(BASE_DIR, "report.html"))
+    return FileResponse(
+        os.path.join(BASE_DIR, "report.html")
+    )
 
 
 @app.get("/style.css")
 def style():
-    return FileResponse(os.path.join(BASE_DIR, "style.css"))
+    return FileResponse(
+        os.path.join(BASE_DIR, "style.css")
+    )
 
 
 @app.get("/script.js")
 def script():
-    return FileResponse(os.path.join(BASE_DIR, "script.js"))
+    return FileResponse(
+        os.path.join(BASE_DIR, "script.js")
+    )
 
 
 # ================= SECURITY =================
@@ -84,7 +99,9 @@ app.add_middleware(
 
 # ================= DATABASE =================
 
-models.Base.metadata.create_all(bind=database.engine)
+models.Base.metadata.create_all(
+    bind=database.engine
+)
 
 
 # ================= PASSWORD =================
@@ -94,16 +111,25 @@ def get_password_hash(password):
 
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(
+        plain_password,
+        hashed_password
+    )
 
+
+# ================= JWT TOKEN =================
 
 def create_access_token(data: dict):
+
     to_encode = data.copy()
+
     expire = datetime.utcnow() + timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
-    to_encode.update({"exp": expire})
+    to_encode.update({
+        "exp": expire
+    })
 
     return jwt.encode(
         to_encode,
@@ -114,66 +140,46 @@ def create_access_token(data: dict):
 
 # ================= LOGIN =================
 
-@app.post("/login", response_model=models.Token)
-def login(
-    user_data: models.UserCreate,
-    db: Session = Depends(database.get_db)
-):
-    user = db.query(models.UserDB).filter(
-        models.UserDB.username == user_data.username
-    ).first()
+@app.post(
+    "/login",
+    response_model=models.Token
+)
+def login(user_data: models.UserCreate):
 
-    if not user:
-        if (
-            user_data.username == "admin"
-            and user_data.password == "admin123"
-        ):
-            new_user = models.UserDB(
-                username="admin",
-                hashed_password=get_password_hash("admin123"),
-                role="admin"
-            )
-
-            db.add(new_user)
-            db.commit()
-            db.refresh(new_user)
-
-            user = new_user
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Incorrect username or password"
-            )
-
-    if not verify_password(
-        user_data.password,
-        user.hashed_password
+    if (
+        user_data.username == "admin"
+        and user_data.password == "admin123"
     ):
-        raise HTTPException(
-            status_code=400,
-            detail="Incorrect username or password"
+
+        access_token = create_access_token(
+            data={
+                "sub": "admin",
+                "role": "admin"
+            }
         )
 
-    access_token = create_access_token(
-        data={
-            "sub": user.username,
-            "role": user.role
+        return {
+            "access_token": access_token,
+            "token_type": "bearer"
         }
-    )
 
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+    raise HTTPException(
+        status_code=400,
+        detail="Incorrect username or password"
+    )
 
 
 # ================= STUDENTS =================
 
-@app.post("/add-student", response_model=models.Student)
+@app.post(
+    "/add-student",
+    response_model=models.Student
+)
 def add_student(
     student: models.StudentCreate,
     db: Session = Depends(database.get_db)
 ):
+
     existing_student = db.query(
         models.StudentDB
     ).filter(
@@ -186,7 +192,9 @@ def add_student(
             detail=f"Student with Roll No {student.roll_no} already exists."
         )
 
-    db_student = models.StudentDB(**student.dict())
+    db_student = models.StudentDB(
+        **student.dict()
+    )
 
     db.add(db_student)
     db.commit()
@@ -203,6 +211,7 @@ def get_student(
     roll_no: str,
     db: Session = Depends(database.get_db)
 ):
+
     student = db.query(
         models.StudentDB
     ).filter(
@@ -225,14 +234,20 @@ def get_student(
 def get_all_students(
     db: Session = Depends(database.get_db)
 ):
-    return db.query(models.StudentDB).all()
+
+    return db.query(
+        models.StudentDB
+    ).all()
 
 
-@app.delete("/student/{roll_no}")
+@app.delete(
+    "/student/{roll_no}"
+)
 def delete_student(
     roll_no: str,
     db: Session = Depends(database.get_db)
 ):
+
     student = db.query(
         models.StudentDB
     ).filter(
@@ -256,7 +271,10 @@ def delete_student(
 # ================= AI / ML =================
 
 @app.post("/predict-risk")
-def predict_risk_api(student_data: dict):
+def predict_risk_api(
+    student_data: dict
+):
+
     return ml_model.predict_risk(
         student_data["gpa"],
         student_data["attendance"]
@@ -264,7 +282,10 @@ def predict_risk_api(student_data: dict):
 
 
 @app.post("/predict-placement")
-def predict_placement_api(student_data: dict):
+def predict_placement_api(
+    student_data: dict
+):
+
     return ml_model.predict_placement(
         student_data["gpa"],
         student_data["coding_score"],
@@ -273,11 +294,14 @@ def predict_placement_api(student_data: dict):
     )
 
 
-@app.get("/suggestions/{roll_no}")
+@app.get(
+    "/suggestions/{roll_no}"
+)
 def get_suggestions(
     roll_no: str,
     db: Session = Depends(database.get_db)
 ):
+
     student = db.query(
         models.StudentDB
     ).filter(
@@ -298,8 +322,9 @@ def get_suggestions(
 # ================= RUN =================
 
 if __name__ == "__main__":
+
     uvicorn.run(
         app,
         host="0.0.0.0",
         port=8001
-    ) 
+    )
