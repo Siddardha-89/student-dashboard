@@ -6,7 +6,6 @@ from typing import List
 import uvicorn
 from datetime import datetime, timedelta
 from jose import jwt
-from passlib.context import CryptContext
 import os
 import sys
 
@@ -27,51 +26,37 @@ app = FastAPI(title="Student Performance Analyzer API")
 
 @app.get("/")
 def home():
-    return FileResponse(
-        os.path.join(BASE_DIR, "index.html")
-    )
+    return FileResponse(os.path.join(BASE_DIR, "index.html"))
 
 
 @app.get("/login.html")
 def login_page():
-    return FileResponse(
-        os.path.join(BASE_DIR, "login.html")
-    )
+    return FileResponse(os.path.join(BASE_DIR, "login.html"))
 
 
 @app.get("/dashboard.html")
 def dashboard_page():
-    return FileResponse(
-        os.path.join(BASE_DIR, "dashboard.html")
-    )
+    return FileResponse(os.path.join(BASE_DIR, "dashboard.html"))
 
 
 @app.get("/admin.html")
 def admin_page():
-    return FileResponse(
-        os.path.join(BASE_DIR, "admin.html")
-    )
+    return FileResponse(os.path.join(BASE_DIR, "admin.html"))
 
 
 @app.get("/report.html")
 def report_page():
-    return FileResponse(
-        os.path.join(BASE_DIR, "report.html")
-    )
+    return FileResponse(os.path.join(BASE_DIR, "report.html"))
 
 
 @app.get("/style.css")
 def style():
-    return FileResponse(
-        os.path.join(BASE_DIR, "style.css")
-    )
+    return FileResponse(os.path.join(BASE_DIR, "style.css"))
 
 
 @app.get("/script.js")
 def script():
-    return FileResponse(
-        os.path.join(BASE_DIR, "script.js")
-    )
+    return FileResponse(os.path.join(BASE_DIR, "script.js"))
 
 
 # ================= SECURITY =================
@@ -80,44 +65,6 @@ SECRET_KEY = "SUPER_SECRET_GOLD_ACCENT_KEY"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto"
-)
-
-
-# ================= CORS =================
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
-
-
-# ================= DATABASE =================
-
-models.Base.metadata.create_all(
-    bind=database.engine
-)
-
-
-# ================= PASSWORD =================
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(
-        plain_password,
-        hashed_password
-    )
-
-
-# ================= JWT TOKEN =================
 
 def create_access_token(data: dict):
 
@@ -136,6 +83,22 @@ def create_access_token(data: dict):
         SECRET_KEY,
         algorithm=ALGORITHM
     )
+
+
+# ================= CORS =================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+
+# ================= DEMO STUDENT STORAGE =================
+
+students_store = {}
 
 
 # ================= LOGIN =================
@@ -169,54 +132,40 @@ def login(user_data: models.UserCreate):
     )
 
 
-# ================= STUDENTS =================
+# ================= ADD STUDENT =================
 
 @app.post(
     "/add-student",
     response_model=models.Student
 )
 def add_student(
-    student: models.StudentCreate,
-    db: Session = Depends(database.get_db)
+    student: models.StudentCreate
 ):
 
-    existing_student = db.query(
-        models.StudentDB
-    ).filter(
-        models.StudentDB.roll_no == student.roll_no
-    ).first()
+    roll_no = student.roll_no
 
-    if existing_student:
+    if roll_no in students_store:
         raise HTTPException(
             status_code=400,
-            detail=f"Student with Roll No {student.roll_no} already exists."
+            detail=f"Student with Roll No {roll_no} already exists."
         )
 
-    db_student = models.StudentDB(
-        **student.dict()
-    )
+    students_store[roll_no] = student
 
-    db.add(db_student)
-    db.commit()
-    db.refresh(db_student)
+    return student
 
-    return db_student
 
+# ================= GET ONE STUDENT =================
 
 @app.get(
     "/student/{roll_no}",
     response_model=models.Student
 )
 def get_student(
-    roll_no: str,
-    db: Session = Depends(database.get_db)
+    roll_no: str
 ):
 
-    student = db.query(
-        models.StudentDB
-    ).filter(
-        models.StudentDB.roll_no == roll_no
-    ).first()
+    student = students_store.get(roll_no)
 
     if not student:
         raise HTTPException(
@@ -227,41 +176,33 @@ def get_student(
     return student
 
 
+# ================= GET ALL STUDENTS =================
+
 @app.get(
     "/students",
     response_model=List[models.Student]
 )
-def get_all_students(
-    db: Session = Depends(database.get_db)
-):
+def get_all_students():
 
-    return db.query(
-        models.StudentDB
-    ).all()
+    return list(students_store.values())
 
+
+# ================= DELETE STUDENT =================
 
 @app.delete(
     "/student/{roll_no}"
 )
 def delete_student(
-    roll_no: str,
-    db: Session = Depends(database.get_db)
+    roll_no: str
 ):
 
-    student = db.query(
-        models.StudentDB
-    ).filter(
-        models.StudentDB.roll_no == roll_no
-    ).first()
-
-    if not student:
+    if roll_no not in students_store:
         raise HTTPException(
             status_code=404,
             detail="Student not found"
         )
 
-    db.delete(student)
-    db.commit()
+    del students_store[roll_no]
 
     return {
         "message": "Student deleted"
@@ -294,19 +235,16 @@ def predict_placement_api(
     )
 
 
+# ================= SUGGESTIONS =================
+
 @app.get(
     "/suggestions/{roll_no}"
 )
 def get_suggestions(
-    roll_no: str,
-    db: Session = Depends(database.get_db)
+    roll_no: str
 ):
 
-    student = db.query(
-        models.StudentDB
-    ).filter(
-        models.StudentDB.roll_no == roll_no
-    ).first()
+    student = students_store.get(roll_no)
 
     if not student:
         raise HTTPException(
